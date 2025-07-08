@@ -1,8 +1,8 @@
 [  {
     "kernelSource": {
-      "name": "miku-KernelSU",
-      "repo": "https://github.com/PhamtomK12/kernel_xiaomi_odin",
-      "branch": "TDA",
+      "name": "K70-kernel",
+      "repo": "https://github.com/Vermeer-Development/kernel_xiaomi_sm8550",
+      "branch": "Ksu-Next",
       "device": "odin"
     },
     "withKernelSU": true,
