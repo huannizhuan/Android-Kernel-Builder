@@ -120,6 +120,18 @@ jobs:
           fi
           echo "args=$args" >> $GITHUB_OUTPUT
 
+      - name: "🔧 Fix NR_CPUS Configuration"
+        working-directory: ./${{ env.kernelDir }}/${{ env.kernelName }}
+        run: |
+          # Backup original config
+          cp .config .config.backup
+          
+          # Fix NR_CPUS value (change 100 to desired value)
+          sed -i 's/CONFIG_NR_CPUS=1024/CONFIG_NR_CPUS=100/g' .config
+          
+          # Check if the fix was applied
+          grep -q "CONFIG_NR_CPUS=100" .config && echo "CONFIG_NR_CPUS fixed to 100" || echo "Failed to fix CONFIG_NR_CPUS"
+
       - name: "😋 Update KernelSU"
         working-directory: ./${{ env.kernelDir }}/${{ env.kernelName }}
         if: ${{ env.withKernelSU == 'true' }}
@@ -166,7 +178,7 @@ jobs:
       - name: "💙 Upload Image.gz"
         uses: actions/upload-artifact@v4
         with:
-          name: Image.gz(${{ env.kernelDevice }}-${{ env.kernelName }}-${{ env.kernelBranch }})
+          name: Image.gz($${{ env.kernelDevice }}-${{ env.kernelName }}-${{ env.kernelBranch }})
           path: ./${{ env.kernelDir }}/${{ env.OUT_DIR }}/arch/${{ env.ARCH }}/boot/Image.gz
           if-no-files-found: ignore
           retention-days: 7
@@ -174,7 +186,7 @@ jobs:
       - name: "💜 Upload dtb"
         uses: actions/upload-artifact@v4
         with:
-          name: dtb(${{ env.kernelDevice }}-${{ env.kernelName }}-${{ env.kernelBranch }})
+          name: dtb($${{ env.kernelDevice }}-${{ env.kernelName }}-${{ env.kernelBranch }})
           path: ./${{ env.kernelDir }}/${{ env.OUT_DIR }}/arch/${{ env.ARCH }}/boot/dtb
           if-no-files-found: ignore
           retention-days: 7
@@ -182,7 +194,7 @@ jobs:
       - name: "❤️ Upload dtbo.img"
         uses: actions/upload-artifact@v4
         with:
-          name: dtbo.img(${{ env.kernelDevice }}-${{ env.kernelName }}-${{ env.kernelBranch }})
+          name: dtbo.img($${{ env.kernelDevice }}-${{ env.kernelName }}-${{ env.kernelBranch }})
           path: ./${{ env.kernelDir }}/${{ env.OUT_DIR }}/arch/${{ env.ARCH }}/boot/dtbo.img
           if-no-files-found: ignore
           retention-days: 7
