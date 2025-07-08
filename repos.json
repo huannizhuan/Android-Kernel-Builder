@@ -1,9 +1,9 @@
 [  {
     "kernelSource": {
       "name": "oppo-r11s-plus-KernelSU",
-      "repo": "https://github.com/WenHao-Dev/android_kernel_oppo_sdm660_4.4.153",
+      "repo": "https://github.com/huannizhuan/android_kernel_oppo_sdm660_4.4.153",
       "branch": "master",
-      "device": "odin"
+      "device": "what"
     },
     "withKernelSU": true,
     "toolchains": [
