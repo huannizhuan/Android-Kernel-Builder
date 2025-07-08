@@ -52,7 +52,7 @@ jobs:
       - name: "⭐ Install prerequisites"
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential bc curl git zip ftp gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi libssl-dev lftp zstd wget libfl-dev python3 libarchive-tools
+          sudo apt-get install -y build-essential bc curl git zip ftp gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi libssl-dev lftp zstd wget libfl-dev python3 libarchive-tools jq
 
       - name: "🌟 Clone kernel source => (${{ env.kernelRepo }})"
         working-directory: ./${{ env.kernelDir }}
@@ -119,6 +119,48 @@ jobs:
             args="$args CC=$CC"
           fi
           echo "args=$args" >> $GITHUB_OUTPUT
+
+      - name: "🔧 Fix kernel configuration (for older kernels)"
+        working-directory: ./${{ env.kernelDir }}/${{ env.kernelName }}
+        # 仅当内核版本为4.x时应用修复
+        if: ${{ contains(matrix.repos.kernelSource.branch, '4.') }}
+        run: |
+          echo "Applying fixes for older kernel (4.x series)"
+          
+          # 1. 修复 NR_CPUS 配置
+          DEFCONFIG_FILE="arch/${{ env.ARCH }}/configs/${{ env.DEFCONFIG_NAME }}"
+          if [ -f "$DEFCONFIG_FILE" ]; then
+            # 设置合理的CPU核心数 (骁龙660是8核)
+            sed -i 's/CONFIG_NR_CPUS=.*/CONFIG_NR_CPUS=8/' "$DEFCONFIG_FILE"
+            
+            # 如果配置中不存在NR_CPUS，则添加
+            if ! grep -q "CONFIG_NR_CPUS" "$DEFCONFIG_FILE"; then
+              echo "CONFIG_NR_CPUS=8" >> "$DEFCONFIG_FILE"
+            fi
+            
+            # 禁用导致问题的调试功能
+            echo "# CONFIG_SCHED_TRACER is not set" >> "$DEFCONFIG_FILE"
+            echo "# CONFIG_FTRACE is not set" >> "$DEFCONFIG_FILE"
+            
+            # 确保禁用调试符号
+            sed -i 's/CONFIG_DEBUG_INFO=y/# CONFIG_DEBUG_INFO is not set/' "$DEFCONFIG_FILE"
+            
+            echo "Modified defconfig:"
+            head -n 20 "$DEFCONFIG_FILE"
+          else
+            echo "Warning: Defconfig file not found: $DEFCONFIG_FILE"
+          fi
+          
+          # 2. 修复源码中的硬件限制
+          SCHED_FILE="include/trace/events/sched.h"
+          if [ -f "$SCHED_FILE" ]; then
+            # 放宽CPU核心数限制
+            sed -i 's/#if NR_CPUS > 32/#if NR_CPUS > 128/' "$SCHED_FILE"
+            sed -i 's/#if NR_CPUS > 64/#if NR_CPUS > 128/' "$SCHED_FILE"
+            echo "Patched $SCHED_FILE"
+          else
+            echo "Warning: sched.h not found"
+          fi
 
       - name: "😋 Update KernelSU"
         working-directory: ./${{ env.kernelDir }}/${{ env.kernelName }}
