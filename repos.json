@@ -3,7 +3,7 @@
       "name": "K70-kernel",
       "repo": "https://github.com/Vermeer-Development/kernel_xiaomi_sm8550",
       "branch": "Ksu-next",
-      "device": "odin"
+      "device": "KAILUA"
     },
     "withKernelSU": true,
     "toolchains": [
