@@ -1,9 +1,9 @@
 [  {
     "kernelSource": {
-      "name": "oppo-r11s-plus-KernelSU",
-      "repo": "https://github.com/huannizhuan/android_kernel_oppo_sdm660_4.4.153",
-      "branch": "master",
-      "device": "what"
+      "name": "lenovo-tb226xc-KernelSU",
+      "repo": "https://github.com/TheMatheusDev/karamelsu",
+      "branch": "spes-r-oss",
+      "device": "tb226xc"
     },
     "withKernelSU": true,
     "toolchains": [
